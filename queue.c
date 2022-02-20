@@ -26,6 +26,8 @@ struct list_head *q_new()
 /* Free all storage used by queue */
 void q_free(struct list_head *head)
 {
+    if (head == NULL)
+        return;
     head->prev->next = NULL;
     head->prev = NULL;
     struct list_head *tmp, *l = head->next;
@@ -237,8 +239,6 @@ bool q_delete_dup(struct list_head *head)
         }
         tmp = tmp->next;
     }
-
-
     return true;
 }
 
