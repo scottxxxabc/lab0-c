@@ -762,6 +762,49 @@ static bool do_show(int argc, char *argv[])
     return show_queue(0);
 }
 
+static bool do_shuffle()
+{
+    if (!l_meta.l || !l_meta.size) {
+        show_queue(0);
+        return false;
+    }
+    srand(time(NULL));
+
+    int i;
+    struct list_head *tail = l_meta.l->prev;
+
+    for (i = lcnt; i > 1; i--) {
+        int num = rand() % i;
+        int j;
+        struct list_head *ptr = l_meta.l->next;
+        for (j = 0; j < num; j++)
+            ptr = ptr->next;
+
+        if (ptr != tail) {
+            if (ptr->next == tail) {
+                ptr->prev->next = tail;
+                tail->prev = ptr->prev;
+
+                tail->next->prev = ptr;
+                ptr->next = tail->next;
+
+                ptr->prev = tail;
+                tail->next = ptr;
+            } else {
+                struct list_head *tmp = tail->prev;
+                list_del_init(tail);
+                list_add(tail, ptr);
+                list_del_init(ptr);
+                list_add(ptr, tmp);
+            }
+        }
+        if (tail->prev != l_meta.l)
+            tail = tail->prev;
+    }
+    show_queue(0);
+    return true;
+}
+
 static void console_init()
 {
     ADD_COMMAND(new, "                | Create new queue");
@@ -790,6 +833,7 @@ static void console_init()
     ADD_COMMAND(
         size, " [n]            | Compute queue size n times (default: n == 1)");
     ADD_COMMAND(show, "                | Show queue contents");
+    ADD_COMMAND(shuffle, "                | Shuffle queue contents");
     ADD_COMMAND(dm, "                | Delete middle node in queue");
     ADD_COMMAND(
         dedup, "                | Delete all nodes that have duplicate string");
