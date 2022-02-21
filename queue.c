@@ -18,8 +18,11 @@
 struct list_head *q_new()
 {
     struct list_head *head = malloc(sizeof(struct list_head));
+    if (!head)
+        return NULL;
     head->next = head;
     head->prev = head;
+
     return head;
 }
 
@@ -49,9 +52,11 @@ void q_free(struct list_head *head)
  */
 bool q_insert_head(struct list_head *head, char *s)
 {
+    if (!head)
+        return false;
     element_t *new = malloc(sizeof(element_t));
 
-    if (!new || head == NULL)
+    if (!new)
         return false;
 
     new->value = strdup(s);
@@ -79,9 +84,11 @@ bool q_insert_head(struct list_head *head, char *s)
  */
 bool q_insert_tail(struct list_head *head, char *s)
 {
+    if (!head)
+        return false;
     element_t *new = malloc(sizeof(element_t));
 
-    if (!new || head == NULL)
+    if (!new)
         return false;
 
     new->value = strdup(s);
@@ -116,7 +123,7 @@ bool q_insert_tail(struct list_head *head, char *s)
  */
 element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
 {
-    if (head == NULL || head->next == NULL)
+    if (q_size(head) == 0)
         return NULL;
 
     struct list_head *r = head->next;
@@ -125,10 +132,13 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
     r->next->prev = head;
 
     element_t *tmp = container_of(r, element_t, list);
-    size_t str_size = sizeof(sp) <= bufsize - 1 ? sizeof(sp) : bufsize - 1;
-    memset(sp, '\0', bufsize);
-    memcpy(sp, tmp->value, str_size);
 
+    if (sp) {
+        memcpy(sp, tmp->value, bufsize);
+        sp[bufsize - 1] = '\0';
+    }
+
+    printf("haha");
     return tmp;
 }
 
@@ -138,7 +148,7 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
  */
 element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
 {
-    if (head == NULL || head->next == NULL)
+    if (q_size(head) == 0)
         return NULL;
 
     struct list_head *r = head->prev;
@@ -147,9 +157,12 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
     head->prev = r->prev;
 
     element_t *tmp = container_of(r, element_t, list);
-    size_t str_size = sizeof(sp) <= bufsize - 1 ? sizeof(sp) : bufsize - 1;
-    memset(sp, '\0', bufsize);
-    memcpy(sp, tmp->value, str_size);
+
+    if (sp) {
+        memcpy(sp, tmp->value, bufsize);
+        sp[bufsize - 1] = '\0';
+    }
+
 
     return tmp;
 }
@@ -170,7 +183,7 @@ void q_release_element(element_t *e)
  */
 int q_size(struct list_head *head)
 {
-    if (head == NULL || head->next == NULL)
+    if (head == NULL || list_empty(head))
         return 0;
 
     int count = 0;
@@ -193,7 +206,7 @@ bool q_delete_mid(struct list_head *head)
 {
     // https://leetcode.com/problems/delete-the-middle-node-of-a-linked-list/
 
-    if (head == NULL || head->next == NULL)
+    if (q_size(head) == 0)
         return false;
 
     struct list_head *slow = head->next, *fast = head->next->next;
@@ -282,7 +295,6 @@ void q_reverse(struct list_head *head)
 {
     if (q_size(head) <= 1)
         return;
-
 
     struct list_head *ptr = head, *prev_node = ptr->prev,
                      *next_node = ptr->next;
