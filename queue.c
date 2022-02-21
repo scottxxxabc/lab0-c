@@ -138,7 +138,6 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
         sp[bufsize - 1] = '\0';
     }
 
-    printf("haha");
     return tmp;
 }
 
@@ -335,7 +334,7 @@ struct list_head *merge(struct list_head *list1, struct list_head *list2)
     while (list1 && list2) {
         v1 = container_of(list1, element_t, list)->value;
         v2 = container_of(list2, element_t, list)->value;
-        node = (*v1 <= *v2) ? &list1 : &list2;
+        node = (strcmp(v1, v2) <= 0) ? &list1 : &list2;
 
         (*node)->prev = tail;
         tail->next = *node;
