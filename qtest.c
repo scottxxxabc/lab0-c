@@ -779,7 +779,7 @@ static bool do_shuffle()
         struct list_head *ptr = l_meta.l->next;
         for (j = 0; j < num; j++)
             ptr = ptr->next;
-
+        struct list_head *tmp = tail->prev;
         if (ptr != tail) {
             if (ptr->next == tail) {
                 ptr->prev->next = tail;
@@ -791,15 +791,14 @@ static bool do_shuffle()
                 ptr->prev = tail;
                 tail->next = ptr;
             } else {
-                struct list_head *tmp = tail->prev;
                 list_del_init(tail);
                 list_add(tail, ptr);
                 list_del_init(ptr);
                 list_add(ptr, tmp);
             }
         }
-        if (tail->prev != l_meta.l)
-            tail = tail->prev;
+        if (tmp != l_meta.l)
+            tail = tmp;
     }
     show_queue(0);
     return true;
