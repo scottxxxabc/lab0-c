@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "harness.h"
+
 #include "queue.h"
 
 /* Notice: sometimes, Cppcheck would find the potential NULL pointer bugs,
@@ -396,4 +397,3 @@ void q_sort(struct list_head *head)
     head->prev = *pptr;
     (*pptr)->next = head;
 }
-

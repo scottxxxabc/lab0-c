@@ -13,7 +13,7 @@
 #include <time.h>
 #include <unistd.h>
 #include "dudect/fixture.h"
-#include "list.h"
+#include "list_sort.h"
 
 /* Our program needs to use regular malloc/free */
 #define INTERNAL 1
@@ -762,6 +762,26 @@ static bool do_show(int argc, char *argv[])
     return show_queue(0);
 }
 
+static int list_node_cmp(void *priv,
+                         const struct list_head *a,
+                         const struct list_head *b)
+{
+    return strcmp(list_entry(a, element_t, list)->value,
+                  list_entry(b, element_t, list)->value);
+}
+
+
+static bool do_linuxsort()
+{
+    if (!l_meta.l || !l_meta.size) {
+        show_queue(0);
+        return false;
+    }
+    list_sort(NULL, l_meta.l, list_node_cmp);
+    show_queue(0);
+    return true;
+}
+
 static bool do_shuffle()
 {
     if (!l_meta.l || !l_meta.size) {
@@ -829,6 +849,7 @@ static void console_init()
         "                | Remove from head of queue without reporting value.");
     ADD_COMMAND(reverse, "                | Reverse queue");
     ADD_COMMAND(sort, "                | Sort queue in ascending order");
+    ADD_COMMAND(linuxsort, "                | Sort queue in ascending order");
     ADD_COMMAND(
         size, " [n]            | Compute queue size n times (default: n == 1)");
     ADD_COMMAND(show, "                | Show queue contents");
@@ -982,7 +1003,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    srand((unsigned int) (time(NULL)));
+    srand((unsigned int) (123));
     queue_init();
     init_cmd();
     console_init();
